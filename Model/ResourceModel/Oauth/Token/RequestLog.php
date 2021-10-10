@@ -46,7 +46,7 @@ class RequestLog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb im
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function _construct()
     {
@@ -54,33 +54,19 @@ class RequestLog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb im
     }
 
     /**
-     * @inheritdoc
-     * @param string $userName
-     * @param int $userType
+     * {@inheritdoc}
      */
     public function getFailuresCount($userName, $userType)
     {
-        $date = (new \DateTime())->setTimestamp($this->dateTime->gmtTimestamp());
-        $dateTime = $date->format(\Magento\Framework\Stdlib\DateTime::DATETIME_PHP_FORMAT);
-        
         $select = $this->getConnection()->select();
         $select->from($this->getMainTable(), 'failures_count')
-            ->where('user_name = :user_name AND user_type = :user_type AND lock_expires_at > :expiration_time');
+            ->where('user_name = :user_name AND user_type = :user_type');
 
-        return (int)$this->getConnection()->fetchOne(
-            $select,
-            [
-                'user_name' => $userName,
-                'user_type' => $userType,
-                'expiration_time' => $dateTime,
-            ]
-        );
+        return (int)$this->getConnection()->fetchOne($select, ['user_name' => $userName, 'user_type' => $userType]);
     }
 
     /**
-     * @inheritdoc
-     * @param string $userName
-     * @param int $userType
+     * {@inheritdoc}
      */
     public function resetFailuresCount($userName, $userType)
     {
@@ -91,9 +77,7 @@ class RequestLog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb im
     }
 
     /**
-     * @inheritdoc
-     * @param string $userName
-     * @param int $userType
+     * {@inheritdoc}
      */
     public function incrementFailuresCount($userName, $userType)
     {
@@ -117,7 +101,7 @@ class RequestLog extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb im
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function clearExpiredFailures()
     {

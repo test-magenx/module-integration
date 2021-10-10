@@ -56,9 +56,6 @@ class IntegrationTest extends TestCase
      */
     protected $consolidatedConfigMock;
 
-    /**
-     * @inheritDoc
-     */
     protected function setUp(): void
     {
         $this->subjectMock = $this->createMock(IntegrationService::class);
@@ -72,10 +69,11 @@ class IntegrationTest extends TestCase
         );
         $this->integrationConfigMock = $this->getMockBuilder(IntegrationConfig::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getIntegrations'])
+            ->setMethods([])
             ->getMock();
         $this->consolidatedConfigMock = $this->getMockBuilder(ConsolidatedConfig::class)
             ->disableOriginalConstructor()
+            ->setMethods([])
             ->getMock();
 
         $objectManagerHelper = new ObjectManager($this);
@@ -91,10 +89,7 @@ class IntegrationTest extends TestCase
         );
     }
 
-    /**
-    * @return void
-    */
-    public function testAfterDelete(): void
+    public function testAfterDelete()
     {
         $integrationId = 1;
         $integrationsData = [
@@ -111,10 +106,7 @@ class IntegrationTest extends TestCase
         $this->integrationPlugin->afterDelete($this->subjectMock, $integrationsData);
     }
 
-    /**
-    * @return void
-    */
-    public function testAfterCreateAllResources(): void
+    public function testAfterCreateAllResources()
     {
         $integrationId = 1;
         $integrationModelMock = $this->getMockBuilder(Integration::class)
@@ -135,10 +127,7 @@ class IntegrationTest extends TestCase
         $this->integrationPlugin->afterCreate($this->subjectMock, $integrationModelMock);
     }
 
-    /**
-    * @return void
-    */
-    public function testAfterCreateSomeResources(): void
+    public function testAfterCreateSomeResources()
     {
         $integrationId = 1;
         $integrationModelMock = $this->getMockBuilder(Integration::class)
@@ -147,10 +136,18 @@ class IntegrationTest extends TestCase
         $integrationModelMock->expects($this->exactly(2))
             ->method('getId')
             ->willReturn($integrationId);
-        $integrationModelMock
+        $integrationModelMock->expects($this->at(2))
             ->method('getData')
-            ->withConsecutive(['all_resources'], ['resource'], ['resource'])
-            ->willReturnOnConsecutiveCalls(null, ['testResource'], ['testResource']);
+            ->with('all_resources')
+            ->willReturn(null);
+        $integrationModelMock->expects($this->at(3))
+            ->method('getData')
+            ->with('resource')
+            ->willReturn(['testResource']);
+        $integrationModelMock->expects($this->at(5))
+            ->method('getData')
+            ->with('resource')
+            ->willReturn(['testResource']);
 
         $this->integrationAuthServiceMock->expects($this->once())
             ->method('grantPermissions')
@@ -159,10 +156,7 @@ class IntegrationTest extends TestCase
         $this->integrationPlugin->afterCreate($this->subjectMock, $integrationModelMock);
     }
 
-    /**
-    * @return void
-    */
-    public function testAfterCreateNoResource(): void
+    public function testAfterCreateNoResource()
     {
         $integrationId = 1;
         $integrationModelMock = $this->getMockBuilder(Integration::class)
@@ -171,10 +165,14 @@ class IntegrationTest extends TestCase
         $integrationModelMock->expects($this->exactly(2))
             ->method('getId')
             ->willReturn($integrationId);
-        $integrationModelMock
+        $integrationModelMock->expects($this->at(2))
             ->method('getData')
-            ->withConsecutive(['all_resources'], ['resource'])
-            ->willReturnOnConsecutiveCalls(null, null);
+            ->with('all_resources')
+            ->willReturn(null);
+        $integrationModelMock->expects($this->at(3))
+            ->method('getData')
+            ->with('resource')
+            ->willReturn(null);
 
         $this->integrationAuthServiceMock->expects($this->once())
             ->method('grantPermissions')
@@ -183,10 +181,7 @@ class IntegrationTest extends TestCase
         $this->integrationPlugin->afterCreate($this->subjectMock, $integrationModelMock);
     }
 
-    /**
-    * @return void
-    */
-    public function testAfterUpdateAllResources(): void
+    public function testAfterUpdateAllResources()
     {
         $integrationId = 1;
         $integrationModelMock = $this->getMockBuilder(Integration::class)
@@ -207,15 +202,11 @@ class IntegrationTest extends TestCase
         $this->integrationPlugin->afterUpdate($this->subjectMock, $integrationModelMock);
     }
 
-    /**
-    * @return void
-    */
-    public function testAfterGet(): void
+    public function testAfterGet()
     {
         $integrationId = 1;
         $integrationModelMock = $this->getMockBuilder(Integration::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getId', 'setData'])
             ->getMock();
         $integrationModelMock->expects($this->exactly(2))
             ->method('getId')

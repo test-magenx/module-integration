@@ -30,9 +30,6 @@ class CollectionTest extends TestCase
      */
     protected $collection;
 
-    /**
-     * @inheritdoc
-     */
     protected function setUp(): void
     {
         $this->select = $this->getMockBuilder(Select::class)
@@ -48,7 +45,7 @@ class CollectionTest extends TestCase
 
         $resource = $this->getMockBuilder(AbstractDb::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['__wakeup', 'getConnection'])
+            ->setMethods(['__wakeup', 'getConnection'])
             ->getMockForAbstractClass();
         $resource->expects($this->any())
             ->method('getConnection')
@@ -60,20 +57,24 @@ class CollectionTest extends TestCase
             ['resource' => $resource]
         );
 
-        $this->collection = $this->getMockBuilder(Collection::class)->setConstructorArgs($arguments)
-            ->onlyMethods(['addFilter', '_translateCondition', 'getMainTable'])
+        $this->collection = $this->getMockBuilder(
+            Collection::class
+        )->setConstructorArgs($arguments)
+            ->setMethods(['addFilter', '_translateCondition', 'getMainTable'])
             ->getMock();
     }
 
-    /**
-     * @return void
-     */
-    public function testAddUnsecureUrlsFilter(): void
+    public function testAddUnsecureUrlsFilter()
     {
-        $this->collection
+        $this->collection->expects($this->at(0))
             ->method('_translateCondition')
-            ->withConsecutive(['endpoint', ['like' => 'http:%']], ['identity_link_url', ['like' => 'http:%']])
-            ->willReturnOnConsecutiveCalls('endpoint like \'http:%\'', 'identity_link_url like \'http:%\'');
+            ->with('endpoint', ['like' => 'http:%'])
+            ->willReturn('endpoint like \'http:%\'');
+
+        $this->collection->expects($this->at(1))
+            ->method('_translateCondition')
+            ->with('identity_link_url', ['like' => 'http:%'])
+            ->willReturn('identity_link_url like \'http:%\'');
 
         $this->select->expects($this->once())
             ->method('where')

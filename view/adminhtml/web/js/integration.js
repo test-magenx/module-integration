@@ -299,7 +299,7 @@ define([
                     }
 
                     if (popup.length === 0) {
-                        popup = $('<div></div>');
+                        popup = $('<div/>');
                     }
                     popup.html(popupHtml);
 

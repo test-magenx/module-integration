@@ -44,9 +44,6 @@ class LinkTest extends TestCase
      */
     protected $linkRenderer;
 
-    /**
-     * @inheritdoc
-     */
     protected function setUp(): void
     {
         $this->escaperMock = $this->createMock(Escaper::class);
@@ -71,15 +68,13 @@ class LinkTest extends TestCase
 
     /**
      * Test the basic render action.
-     *
-     * @return void
      */
-    public function testRender(): void
+    public function testRender()
     {
         $expectedResult = '<a href="http://magento.loc/linkurl" title="Link Caption">Link Caption</a>';
-        $column = $this->getMockBuilder(Column::class)->disableOriginalConstructor()
-            ->onlyMethods(['getId'])
-            ->addMethods(['getCaption'])
+        $column = $this->getMockBuilder(Column::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getCaption', 'getId'])
             ->getMock();
         $column->expects($this->any())
             ->method('getCaption')
@@ -87,9 +82,7 @@ class LinkTest extends TestCase
         $column->expects($this->any())
             ->method('getId')
             ->willReturn('1');
-        $this->escaperMock
-            ->method('escapeHtmlAttr')
-            ->willReturn('Link Caption');
+        $this->escaperMock->expects($this->at(0))->method('escapeHtmlAttr')->willReturn('Link Caption');
         $this->linkRenderer->setColumn($column);
         $object = new DataObject(['id' => '1']);
         $actualResult = $this->linkRenderer->render($object);
