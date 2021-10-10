@@ -81,8 +81,6 @@ class RecreatedIntegration implements \Magento\Framework\Notification\MessageInt
      */
     public function getIdentity()
     {
-        // md5() here is not for cryptographic use.
-        // phpcs:ignore Magento2.Security.InsecureFunction
         return md5('INTEGRATION_RECREATED');
     }
 

@@ -8,21 +8,16 @@ declare(strict_types=1);
 
 namespace Magento\Integration\Controller\Adminhtml\Integration;
 
-use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Oauth\Exception;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Integration\Controller\Adminhtml\Integration;
 use Magento\Integration\Model\Integration as IntegrationModel;
 
-/**
- * Tokens Exchange for integration
- */
-class TokensExchange extends Integration implements HttpGetActionInterface
+class TokensExchange extends Integration implements HttpPostActionInterface
 {
     /**
      * Let the admin know that integration has been sent for activation and token exchange is in process.
      *
-     * @param bool $isReauthorize
+     * @param bool   $isReauthorize
      * @param string $integrationName
      * @return void
      */
@@ -65,7 +60,7 @@ class TokensExchange extends Integration implements HttpGetActionInterface
             $popupContent = $this->_response->getBody();
             $consumer = $this->_oauthService->loadConsumer($integration->getConsumerId());
             if (!$consumer->getId()) {
-                throw new Exception(
+                throw new \Magento\Framework\Oauth\Exception(
                     __(
                         'A consumer with "%1" ID doesn\'t exist. Verify the ID and try again.',
                         $integration->getConsumerId()
@@ -79,7 +74,7 @@ class TokensExchange extends Integration implements HttpGetActionInterface
                 'popup_content' => $popupContent,
             ];
             $this->getResponse()->representJson($this->jsonHelper->jsonEncode($result));
-        } catch (LocalizedException $e) {
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
             $this->_redirect('*/*');
             return;
